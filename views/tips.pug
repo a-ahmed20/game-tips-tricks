@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  h2 All Fortnite Tips
+  each tip in tips
+    div.tip-card
+      h3= tip.title
+      p= tip.description
+      p By: #{tip.username} | #{tip.created_at}
+      a(href="/tips/" + tip.id) Read More

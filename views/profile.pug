@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  h2 #{user.username}'s Profile
+  p Email: #{user.email}
+  h3 Your Posted Tips
+  each tip in tips
+    div.tip-card
+      h3= tip.title
+      p= tip.description
+      p Created on: #{tip.created_at}

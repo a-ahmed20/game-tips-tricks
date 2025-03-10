@@ -1,0 +1,9 @@
+extends layout
+
+block content
+  h2 Add a New Tip
+  form(action="/tips/add", method="POST")
+    input(type="text" name="title" placeholder="Tip Title" required)
+    textarea(name="description" placeholder="Write your tip here..." required)
+    input(type="text" name="category" placeholder="Category")
+    button(type="submit") Submit Tip
