@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    container_name: node_app
+    ports:
+      - "3000:3000"
+    command: node server.js
+    environment:
+      - DB_HOST=host.docker.internal
+      - DB_USER=root
+      - DB_PASSWORD=password
+      - DB_NAME=FORTNITE_COMMUNITY
+    networks:
+      - app-network
+
+networks:
+  app-network:

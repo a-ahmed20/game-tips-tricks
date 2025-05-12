@@ -1,20 +1,20 @@
-# Use an official Node.js runtime
-FROM node:18-alpine
+# Base image to use
+FROM node:latest
 
-# Set working directory
-WORKDIR /usr/src/app
+# set a working directory
+WORKDIR /src
 
-# Copy package files
-COPY package*.json ./
+# Copy across project configuration information
+# Install application dependencies
+COPY package*.json /src/
 
-# Install dependencies
-RUN npm install
+# Ask npm to install the dependencies
+RUN npm install -g supervisor && npm install && npm install supervisor
 
-# Copy the rest of the app
-COPY . .
+# Copy across all our files
+COPY . /src
 
-# Expose the port your app runs on (e.g., 3000)
+# Expose our application port (3000)
 EXPOSE 3000
 
-# Start the app (nodemon for dev, node for prod)
-CMD ["npm", "start"]
+
