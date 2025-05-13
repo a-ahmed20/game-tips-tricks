@@ -1,0 +1,100 @@
+extends ../layout.pug
+
+block content
+  .container
+    .row
+      .col-md-8.mx-auto
+        .card.mb-4
+          .card-body
+            h2= post.title
+            p= post.content
+            .d-flex.justify-content-between.align-items-center.mt-3
+              small.text-muted 
+                | Posted by #{post.username} 
+                | on #{new Date(post.created_at).toLocaleString()}
+              
+              // Star rating component
+              .star-rating(data-post-id=post.id)
+                - for (let i = 5; i >= 1; i--)
+                  input(
+                    type="radio"
+                    id=`star${i}-${post.id}`
+                    name=`rating-${post.id}`
+                    value=i
+                    data-post-id=post.id
+                  )
+                  label(for=`star${i}-${post.id}`) ★
+                
+        if user
+          .card.mb-4
+            .card-body
+              h5.card-title Add Comment
+              form(method="POST" action=`/posts/${post.id}/comment`)
+                .mb-3
+                  textarea.form-control(name="content" placeholder="Your comment..." rows="3" required)
+                button.btn.btn-primary(type="submit") Post Comment
+        
+        if comments.length > 0
+          h4.mt-4 Comments (#{comments.length})
+          each comment in comments
+            .card.mb-3
+              .card-body
+                p.card-text= comment.content
+                .d-flex.justify-content-between.align-items-center
+                  small.text-muted
+                    | Commented by #{comment.username} 
+                    | on #{new Date(comment.created_at).toLocaleString()}
+                  
+                  .comment-reactions
+                    button.btn.btn-sm.btn-outline-primary.like-comment(
+                      data-comment-id=comment.id
+                      class=comment.userReaction === 1 ? 'active' : ''
+                    )
+                      i.bi.bi-hand-thumbs-up
+                      span.count #{comment.likeCount || 0}
+                    
+                    button.btn.btn-sm.btn-outline-danger.dislike-comment(
+                      data-comment-id=comment.id
+                      class=comment.userReaction === -1 ? 'active' : ''
+                    )
+                      i.bi.bi-hand-thumbs-down
+                      span.count #{comment.dislikeCount || 0}
+        else
+          .alert.alert-info No comments yet. Be the first to comment!
+
+  script.
+    // Comment like/dislike functionality
+    document.querySelectorAll('.like-comment, .dislike-comment').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const commentId = this.dataset.commentId;
+            const isLike = this.classList.contains('like-comment');
+            
+            try {
+                const response = await fetch(`/posts/comments/${commentId}/${isLike ? 'like' : 'dislike'}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    // Update UI
+                    const commentElement = this.closest('.comment-reactions');
+                    commentElement.querySelector('.like-comment .count').textContent = data.likeCount || 0;
+                    commentElement.querySelector('.dislike-comment .count').textContent = data.dislikeCount || 0;
+                    
+                    // Toggle active state
+                    if (isLike) {
+                        this.classList.toggle('active');
+                        this.closest('.comment-reactions').querySelector('.dislike-comment').classList.remove('active');
+                    } else {
+                        this.classList.toggle('active');
+                        this.closest('.comment-reactions').querySelector('.like-comment').classList.remove('active');
+                    }
+                }
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        });
+    });
